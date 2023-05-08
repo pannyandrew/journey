@@ -158,7 +158,7 @@ def train_classifier(args, train, dev):
     # The following code DOES NOT WORK but can be a starting point for your implementation
     # Some suggested snippets to use:
     BATCH_SIZE = 5
-    model = Transformer(27, 20, 5, 3, 3, 1)
+    model = Transformer(27, 20, 20, 3, 3, 1)
     model.train()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     loss_fcn = nn.NLLLoss()
