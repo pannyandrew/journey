@@ -56,6 +56,7 @@ class Transformer(nn.Module):
         maps you use in your layers (can be variable length, but each should be a 20x20 matrix)
         """
         input = indices + self.embedded(indices)
+        print(input)
         attention_maps = []
         for transformer in (self.transformers):
             transformed_input, attention_map = transformer(input[0])
@@ -87,7 +88,7 @@ class TransformerLayer(nn.Module):
         self.d_internal = d_internal
         self.keys = nn.Linear(d_model, d_internal, bias=False)
         self.queries = nn.Linear(d_model, d_internal, bias=False)
-        self.values = nn.Linear(d_internal, d_model, bias=False)
+        self.values = nn.Linear(d_model, d_internal, bias=False)
 
         self.softmax = nn.Softmax(dim=1)
         
