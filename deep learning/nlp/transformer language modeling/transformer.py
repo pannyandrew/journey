@@ -57,8 +57,8 @@ class Transformer(nn.Module):
         """
         input = indices + self.embedded(indices)
         attention_maps = []
-        for transformer in range(len(self.transformers)):
-            transformed_input, attention_map = transformer(input)
+        for transformer in (self.transformers):
+            transformed_input, attention_map = transformer(input[0])
             input = transformed_input
             attention_maps.append(attention_map)
         linear = self.linear(input)
@@ -88,23 +88,25 @@ class TransformerLayer(nn.Module):
         self.keys = nn.Linear(d_model, d_internal, bias=False)
         self.queries = nn.Linear(d_model, d_internal, bias=False)
         self.values = nn.Linear(d_internal, d_model, bias=False)
+
+        self.softmax = nn.Softmax(dim=1)
         
         self.linear1 = nn.Linear(d_model, d_internal)
         self.nonlinearity = nn.GELU()
-        self.linear2 = nn.Linear(d_internal, d_model)
+        self.linear2 = nn.Linear(d_model, d_model)
         
-
-
     def forward(self, input_vecs):
         keys = self.keys(input_vecs)
-        queries = self.queries(input_vecs) 
+        queries = self.queries(input_vecs)
         values = self.values(input_vecs)
-        
-        attention = nn.matmul(queries, keys.t())
+        print(keys)
+        print(queries)
+        print(values)
+        attention = torch.matmul(queries, keys.t())
         attention = attention / (self.d_model**(1/2))
-        attention_return = nn.Softmax(attention, dim=1)
-        attention = nn.matmul(attention_return, values)
-
+        attention_return = self.softmax(attention)
+        attention = torch.matmul(attention_return, values)
+        
         residual = input_vecs
         attention += residual
 
@@ -115,8 +117,6 @@ class TransformerLayer(nn.Module):
         linear += attention
 
         return linear, attention_return
-
-        
 
 
 # Implementation of positional encoding that you can use in your network
@@ -158,7 +158,7 @@ def train_classifier(args, train, dev):
     # The following code DOES NOT WORK but can be a starting point for your implementation
     # Some suggested snippets to use:
     BATCH_SIZE = 5
-    model = Transformer(27, 20, 20, 3, 3, 1)
+    model = Transformer(27, 20, 20, 5, 3, 1)
     model.train()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     loss_fcn = nn.NLLLoss()
